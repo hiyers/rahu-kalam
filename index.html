@@ -110,10 +110,14 @@ details.note { border-top: 1px solid var(--line); padding: 11px 0; }
 details.note:first-of-type { border-top: 0; padding-top: 0; }
 details.note summary { font-size: 16px; font-weight: 600; cursor: pointer; }
 details.note a { color: var(--accent); font-weight: 600; }
+details.note.sub { margin-top: 10px; padding: 10px 0 0; }
+details.note.sub summary { font-size: 15px; }
 details.note ul.pts { margin: 10px 0 0; padding-left: 18px; font-size: 15px; line-height: 1.5; color: var(--muted); }
 details.note ul.pts li { margin-top: 8px; }
 details.note ul.pts b { color: var(--text); }
 details.note p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.savemsg { margin: 10px 0 0; font-size: 13px; line-height: 1.4; color: var(--accent); }
+.savemsg:empty { display: none; }
 .hidden { display: none !important; }
 </style>
 </head>
@@ -152,6 +156,7 @@ details.note p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: var
     </div>
     <div class="nums" id="nums"></div>
     <p class="read" id="read"></p>
+    <p class="savemsg" id="savemsg"></p>
     <div class="sun"><span>Sunrise <b id="sr"></b></span><span id="dl"></span><span>Sunset <b id="ss"></b></span></div>
   </section>
 
@@ -176,10 +181,32 @@ details.note p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: var
       <ul class="week" id="week"></ul>
     </details>
     <details class="note">
+      <summary>Add to Home Screen</summary>
+      <p>This works from the page's own web address in Safari or Chrome. It does not work inside the Claude app.</p>
+      <details class="note sub">
+        <summary>iPhone (Safari)</summary>
+        <ul class="pts">
+          <li>Open this page in Safari.</li>
+          <li>Tap the Share button, scroll down and tap <b>Add to Home Screen</b>.</li>
+          <li>If you see <b>Open as Web App</b>, leave it on. Tap <b>Add</b>.</li>
+          <li>Open Rahu Kalam from your Home Screen and choose your city once. The app keeps its own saved data, separate from Safari.</li>
+        </ul>
+      </details>
+      <details class="note sub">
+        <summary>Android (Chrome)</summary>
+        <ul class="pts">
+          <li>Open this page in Chrome.</li>
+          <li>Tap the three-dot menu.</li>
+          <li>Tap <b>Install app</b>, or <b>Add to Home screen</b>.</li>
+          <li>Tap <b>Install</b> or <b>Add</b>, then open it from your home screen. In Samsung Internet use menu, then Add page to, then Home screen.</li>
+        </ul>
+      </details>
+    </details>
+    <details class="note">
       <summary>About</summary>
       <p>The time between sunrise and sunset is split into 8 equal parts. Rahu Kalam is one of them, chosen by the weekday: Monday 2nd, Tuesday 7th, Wednesday 5th, Thursday 6th, Friday 4th, Saturday 3rd, Sunday 8th, so it lasts as long as one block. Drag along the bar to check any time of day: it says Caution inside Rahu Kalam and your buffer, and Good otherwise.</p>
       <p>Sunrise and sunset come from a standard solar formula and are usually within a couple of minutes. Panchangs differ in how they define sunrise and in rounding, so for rituals check your local almanac. Rahu Kalam is a tradition from Hindu astrology, where the period is generally avoided for starting new ventures.</p>
-      <p>The times are worked out inside this page. When you search, the text you type is sent to the free Open-Meteo place search to find matching cities, and nothing else is sent. Your last choice is saved on this device.</p>
+      <p>The times are worked out inside this page. When you search, the text you type is sent to the free Open-Meteo place search to find matching cities, and nothing else is sent. Your last choice is saved in this browser on this device, and nowhere else.</p>
       <p><b>Sources.</b> The weekday rule comes from <a href="https://en.wikipedia.org/wiki/Rahukaalam" target="_blank" rel="noopener noreferrer">Wikipedia</a> and <a href="https://www.drikpanchang.com/tutorials/panchang-utilities/rahu-kalam.html" target="_blank" rel="noopener noreferrer">Drik Panchang</a>. Date and time come from your device clock and are shown in the selected city's time zone. Sunrise and sunset use the <a href="https://en.wikipedia.org/wiki/Sunrise_equation" target="_blank" rel="noopener noreferrer">sunrise equation</a>, checked against the <a href="https://gml.noaa.gov/grad/solcalc/" target="_blank" rel="noopener noreferrer">NOAA solar calculator</a> (<a href="https://gml.noaa.gov/grad/solcalc/calcdetails.html" target="_blank" rel="noopener noreferrer">method details</a>). Place search and time zones come from the <a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noopener noreferrer">Open-Meteo Geocoding API</a>, which uses the <a href="https://www.iana.org/time-zones" target="_blank" rel="noopener noreferrer">IANA time zone database</a>.</p>
     </details>
   </section>
@@ -208,9 +235,15 @@ var PART = [8, 2, 7, 5, 6, 4, 3];
 var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var RAD = Math.PI / 180;
 
-var mem = {};
-function load(k) { try { var v = localStorage.getItem(k); if (v !== null) return JSON.parse(v); } catch (e) {} return k in mem ? mem[k] : null; }
-function save(k, v) { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+var mem = {}, storeOK = true;
+function load(k) {
+  try { var v = localStorage.getItem(k); if (v !== null) return JSON.parse(v); } catch (e) { storeOK = false; }
+  return k in mem ? mem[k] : null;
+}
+function save(k, v) {
+  mem[k] = v;
+  try { localStorage.setItem(k, JSON.stringify(v)); if (localStorage.getItem(k) === null) storeOK = false; } catch (e) { storeOK = false; }
+}
 function $(id) { return document.getElementById(id); }
 
 function sunTimes(y, m, d, lat, lon) {
@@ -257,6 +290,7 @@ function dist(a, b, c, d) {
 }
 
 var loc = load('rk_loc');
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {}); } catch (e) {}
 var buf = load('rk_buf'); if (buf === null) buf = 10;
 var rnd = load('rk_rnd'); if (rnd === null) rnd = 5;
 var sel = null, scrubF = null, cur = null, scrubEl = null;
@@ -307,6 +341,7 @@ function setLoc(l, msg) {
 
 function render() {
   var res = $('result');
+  $('savemsg').textContent = storeOK ? '' : 'This view can\u2019t save your location, so it will ask again next time. Open the page in Safari or Chrome to keep it.';
   if (!loc) {
     res.classList.add('hidden'); $('week').innerHTML = '<li><span class="dn">Choose a location first.</span></li>';
     if (!$('locmsg').textContent) $('locmsg').textContent = 'Choose where you are to see today\u2019s Rahu Kalam.';
