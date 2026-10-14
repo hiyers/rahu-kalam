@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rahu Kalam">
+<title>Rahu Kalam</title>
+<meta name="theme-color" content="#fbf6ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16100b" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light dark;
+  --bg: #fbf6ee; --card: #ffffff; --text: #2a1d12; --muted: #7a6a58; --line: #eadfce; --seg: #eadfce;
+  --accent: #c2500a; --on-accent: #ffffff; --hl: #fff1e0; --good: #2f7d3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16100b; --card: #211812; --text: #f6ece0; --muted: #b3a08b; --line: #3a2c20; --seg: #3a2c20;
+    --accent: #f0944a; --on-accent: #1c1008; --hl: #33231a; --good: #6fcf7c;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16100b; --card: #211812; --text: #f6ece0; --muted: #b3a08b; --line: #3a2c20; --seg: #3a2c20;
+  --accent: #f0944a; --on-accent: #1c1008; --hl: #33231a; --good: #6fcf7c;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); background: var(--bg); }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; padding: 12px 16px 24px; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums; -webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+h1 { margin: 0; flex: none; white-space: nowrap; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; }
+.chip { display: flex; align-items: center; gap: 6px; min-width: 0; min-height: 40px; padding: 0 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.chip span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip svg { flex: none; width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s ease; }
+.chip[aria-expanded="true"] svg { transform: rotate(180deg); }
+.tlink { background: none; border: 0; color: var(--accent); font: inherit; font-size: 13px; font-weight: 600; padding: 2px 0; cursor: pointer; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; }
+h2 { margin: 0 0 10px; font-size: 17px; font-weight: 650; }
+.btn {
+  font: inherit; font-size: 15px; font-weight: 600; border: 0; border-radius: 12px; padding: 0 16px; min-height: 44px;
+  background: var(--accent); color: var(--on-accent); cursor: pointer; white-space: nowrap;
+}
+.btn.ghost { background: none; color: var(--text); border: 1px solid var(--line); }
+.btn:disabled { opacity: 0.6; }
+select, input[type="text"] {
+  font: inherit; font-size: 16px; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; min-height: 44px; width: 100%;
+}
+input::placeholder { color: var(--muted); opacity: 0.85; }
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.locrow { display: flex; flex-direction: column; gap: 10px; }
+.flabel { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.msg { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.4; }
+.msg.err { color: var(--accent); }
+.sug { list-style: none; margin: 8px 0 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.sug li + li { border-top: 1px solid var(--line); }
+.sug button { display: block; width: 100%; text-align: left; background: var(--bg); border: 0; color: var(--text); font: inherit; padding: 10px 12px; min-height: 48px; cursor: pointer; }
+.sug button b { display: block; font-size: 16px; font-weight: 600; }
+.sug button span { display: block; font-size: 13px; color: var(--muted); margin-top: 1px; }
+.sug .note { padding: 10px 12px; font-size: 13px; color: var(--muted); background: var(--bg); }
+.datebar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.datebar .d { text-align: center; flex: 1; }
+.datebar .d b { display: block; font-size: 16px; }
+.datebar .d span { font-size: 13px; color: var(--muted); }
+.nav { width: 44px; padding: 0; font-size: 20px; }
+.range { font-size: clamp(30px, 9.4vw, 44px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; color: var(--accent); margin: 0; }
+.exact { font-size: 14px; color: var(--muted); margin: 4px 0 0; line-height: 1.3; }
+.status { font-size: 16px; margin: 6px 0 0; font-weight: 600; }
+.sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; line-height: 1.4; }
+.bar { position: relative; display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; height: 18px; }
+.bar i { display: block; border-radius: 6px; background: var(--seg); }
+.bar i.r { background: var(--accent); }
+.barwrap { margin-top: 2px; padding: 11px 0 3px; touch-action: pan-y; -webkit-user-select: none; user-select: none; cursor: ew-resize; border-radius: 10px; }
+.scrub { position: absolute; top: -7px; bottom: -7px; width: 8px; border-radius: 4px; background: var(--text); border: 2px solid var(--card); transform: translateX(-4px); pointer-events: none; }
+.read { margin: 4px 0 0; min-height: 26px; font-size: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.read .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.read.good .dot { background: var(--good); } .read.good b + span { color: var(--good); font-weight: 650; }
+.read.caution .dot { background: var(--accent); } .read.caution b + span { color: var(--accent); font-weight: 650; }
+.read .hint { color: var(--muted); font-size: 13.5px; }
+.mark { position: absolute; top: -5px; bottom: -5px; width: 2px; border-radius: 2px; background: var(--muted); transform: translateX(-1px); }
+.nums { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin-top: 6px; text-align: center; font-size: 11px; color: var(--muted); }
+.nums b { color: var(--accent); }
+.facts { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.facts b { color: var(--text); font-weight: 600; }
+.sun { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.sun b { color: var(--text); font-weight: 600; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.opts label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+.week { list-style: none; margin: 0; padding: 0; }
+.week li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 10px; font-size: 16px; }
+.week li.sel { background: var(--hl); }
+.week li .t { font-weight: 600; }
+.week li .dn { color: var(--muted); }
+.week li.sel .dn { color: var(--text); font-weight: 600; }
+.week li .tt { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.week li .ex { font-size: 12.5px; color: var(--muted); }
+details.note { border-top: 1px solid var(--line); padding: 11px 0; }
+details.note:first-of-type { border-top: 0; padding-top: 0; }
+details.note summary { font-size: 16px; font-weight: 600; cursor: pointer; }
+details.note a { color: var(--accent); font-weight: 600; }
+details.note ul.pts { margin: 10px 0 0; padding-left: 18px; font-size: 15px; line-height: 1.5; color: var(--muted); }
+details.note ul.pts li { margin-top: 8px; }
+details.note ul.pts b { color: var(--text); }
+details.note p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Rahu Kalam</h1>
+    <button class="chip" id="chip" type="button" aria-expanded="false" aria-controls="locpanel"><span id="chiptxt">Choose location</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5l4 4 4-4"/></svg></button>
+  </header>
+
+  <section class="card hidden" id="locpanel" aria-label="Location">
+    <div class="locrow">
+      <button class="btn" id="geo" type="button">Use my location</button>
+      <div>
+        <label class="flabel" for="q">Or search any city or town</label>
+        <input type="text" id="q" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="search" placeholder="Try Paris, France or Springfield, Illinois" role="combobox" aria-expanded="false" aria-controls="sug">
+        <ul class="sug hidden" id="sug" role="listbox"></ul>
+      </div>
+      <p class="msg" id="locmsg"></p>
+    </div>
+  </section>
+
+  <section class="card hidden" id="result" aria-live="polite">
+    <div class="datebar">
+      <button class="btn ghost nav" id="prev" type="button" aria-label="Previous day">&lsaquo;</button>
+      <div class="d"><b id="dname"></b><span id="ddate"></span><button class="tlink hidden" id="today" type="button">Back to today</button></div>
+      <button class="btn ghost nav" id="next" type="button" aria-label="Next day">&rsaquo;</button>
+    </div>
+    <p class="range" id="range"></p>
+    <p class="exact" id="exact"></p>
+    <div class="facts"><span>Duration <b id="wdur"></b></span><span>Each of 8 parts <b id="blk"></b></span></div>
+    <p class="status" id="status"></p>
+    <p class="sub" id="extra"></p>
+    <div class="barwrap" id="barwrap" tabindex="0" role="slider" aria-label="Check a time of day. Use the left and right arrow keys." aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Drag to check a time">
+      <div class="bar" id="bar"></div>
+    </div>
+    <div class="nums" id="nums"></div>
+    <p class="read" id="read"></p>
+    <div class="sun"><span>Sunrise <b id="sr"></b></span><span id="dl"></span><span>Sunset <b id="ss"></b></span></div>
+  </section>
+
+  <section class="card">
+    <details class="note">
+      <summary>What to avoid and what is allowed</summary>
+      <ul class="pts">
+        <li><b>What to avoid:</b> Starting new ventures, signing important contracts, making major purchases, or performing auspicious ceremonies (like weddings or housewarmings).</li>
+        <li><b>What is allowed:</b> Routine daily tasks, ongoing projects, and regular work can continue as usual without interruption.</li>
+      </ul>
+    </details>
+    <details class="note">
+      <summary>Buffer and rounding</summary>
+      <div class="opts">
+        <div><label for="buf">Buffer on each side</label><select id="buf"><option value="0">None</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></div>
+        <div><label for="rnd">Round to</label><select id="rnd"><option value="1">1 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></div>
+      </div>
+      <p>The big time adds your buffer to both sides, then rounds the start down and the end up so it is easy to remember. The exact time is shown under it. Duration is the length of the big time including the buffer, and each of the 8 parts is the exact length of Rahu Kalam.</p>
+    </details>
+    <details class="note">
+      <summary>This week</summary>
+      <ul class="week" id="week"></ul>
+    </details>
+    <details class="note">
+      <summary>About</summary>
+      <p>The time between sunrise and sunset is split into 8 equal parts. Rahu Kalam is one of them, chosen by the weekday: Monday 2nd, Tuesday 7th, Wednesday 5th, Thursday 6th, Friday 4th, Saturday 3rd, Sunday 8th, so it lasts as long as one block. Drag along the bar to check any time of day: it says Caution inside Rahu Kalam and your buffer, and Good otherwise.</p>
+      <p>Sunrise and sunset come from a standard solar formula and are usually within a couple of minutes. Panchangs differ in how they define sunrise and in rounding, so for rituals check your local almanac. Rahu Kalam is a tradition from Hindu astrology, where the period is generally avoided for starting new ventures.</p>
+      <p>The times are worked out inside this page. When you search, the text you type is sent to the free Open-Meteo place search to find matching cities, and nothing else is sent. Your last choice is saved on this device.</p>
+      <p><b>Sources.</b> The weekday rule comes from <a href="https://en.wikipedia.org/wiki/Rahukaalam" target="_blank" rel="noopener noreferrer">Wikipedia</a> and <a href="https://www.drikpanchang.com/tutorials/panchang-utilities/rahu-kalam.html" target="_blank" rel="noopener noreferrer">Drik Panchang</a>. Date and time come from your device clock and are shown in the selected city's time zone. Sunrise and sunset use the <a href="https://en.wikipedia.org/wiki/Sunrise_equation" target="_blank" rel="noopener noreferrer">sunrise equation</a>, checked against the <a href="https://gml.noaa.gov/grad/solcalc/" target="_blank" rel="noopener noreferrer">NOAA solar calculator</a> (<a href="https://gml.noaa.gov/grad/solcalc/calcdetails.html" target="_blank" rel="noopener noreferrer">method details</a>). Place search and time zones come from the <a href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noopener noreferrer">Open-Meteo Geocoding API</a>, which uses the <a href="https://www.iana.org/time-zones" target="_blank" rel="noopener noreferrer">IANA time zone database</a>.</p>
+    </details>
+  </section>
+</div>
+<script>
+var LOCAL = [
+  ['Chennai', 'India', 13.0827, 80.2707, 'Asia/Kolkata'], ['Mumbai', 'India', 19.0760, 72.8777, 'Asia/Kolkata'], ['Delhi', 'India', 28.6139, 77.2090, 'Asia/Kolkata'],
+  ['Bengaluru', 'India', 12.9716, 77.5946, 'Asia/Kolkata'], ['Hyderabad', 'India', 17.3850, 78.4867, 'Asia/Kolkata'], ['Kolkata', 'India', 22.5726, 88.3639, 'Asia/Kolkata'],
+  ['Pune', 'India', 18.5204, 73.8567, 'Asia/Kolkata'], ['Ahmedabad', 'India', 23.0225, 72.5714, 'Asia/Kolkata'], ['Jaipur', 'India', 26.9124, 75.7873, 'Asia/Kolkata'],
+  ['Lucknow', 'India', 26.8467, 80.9462, 'Asia/Kolkata'], ['Kochi', 'India', 9.9312, 76.2673, 'Asia/Kolkata'], ['Thiruvananthapuram', 'India', 8.5241, 76.9366, 'Asia/Kolkata'],
+  ['Coimbatore', 'India', 11.0168, 76.9558, 'Asia/Kolkata'], ['Madurai', 'India', 9.9252, 78.1198, 'Asia/Kolkata'], ['Visakhapatnam', 'India', 17.6868, 83.2185, 'Asia/Kolkata'],
+  ['Vijayawada', 'India', 16.5062, 80.6480, 'Asia/Kolkata'], ['Tirupati', 'India', 13.6288, 79.4192, 'Asia/Kolkata'], ['Mysuru', 'India', 12.2958, 76.6394, 'Asia/Kolkata'],
+  ['Mangaluru', 'India', 12.9141, 74.8560, 'Asia/Kolkata'], ['Bhubaneswar', 'India', 20.2961, 85.8245, 'Asia/Kolkata'], ['Patna', 'India', 25.5941, 85.1376, 'Asia/Kolkata'],
+  ['Varanasi', 'India', 25.3176, 82.9739, 'Asia/Kolkata'], ['Chandigarh', 'India', 30.7333, 76.7794, 'Asia/Kolkata'], ['Bhopal', 'India', 23.2599, 77.4126, 'Asia/Kolkata'],
+  ['Indore', 'India', 22.7196, 75.8577, 'Asia/Kolkata'], ['Nagpur', 'India', 21.1458, 79.0882, 'Asia/Kolkata'], ['Surat', 'India', 21.1702, 72.8311, 'Asia/Kolkata'],
+  ['Guwahati', 'India', 26.1445, 91.7362, 'Asia/Kolkata'], ['Colombo', 'Sri Lanka', 6.9271, 79.8612, 'Asia/Colombo'], ['Kathmandu', 'Nepal', 27.7172, 85.3240, 'Asia/Kathmandu'],
+  ['Dhaka', 'Bangladesh', 23.8103, 90.4125, 'Asia/Dhaka'], ['Singapore', 'Singapore', 1.3521, 103.8198, 'Asia/Singapore'], ['Kuala Lumpur', 'Malaysia', 3.1390, 101.6869, 'Asia/Kuala_Lumpur'],
+  ['Dubai', 'United Arab Emirates', 25.2048, 55.2708, 'Asia/Dubai'], ['Doha', 'Qatar', 25.2854, 51.5310, 'Asia/Qatar'], ['London', 'United Kingdom', 51.5074, -0.1278, 'Europe/London'],
+  ['New York', 'United States', 40.7128, -74.0060, 'America/New_York'], ['Chicago', 'United States', 41.8781, -87.6298, 'America/Chicago'],
+  ['Los Angeles', 'United States', 34.0522, -118.2437, 'America/Los_Angeles'], ['San Francisco', 'United States', 37.7749, -122.4194, 'America/Los_Angeles'],
+  ['Toronto', 'Canada', 43.6532, -79.3832, 'America/Toronto'], ['Sydney', 'Australia', -33.8688, 151.2093, 'Australia/Sydney'], ['Melbourne', 'Australia', -37.8136, 144.9631, 'Australia/Melbourne'],
+  ['Auckland', 'New Zealand', -36.8485, 174.7633, 'Pacific/Auckland'], ['Johannesburg', 'South Africa', -26.2041, 28.0473, 'Africa/Johannesburg'], ['Nairobi', 'Kenya', -1.2921, 36.8219, 'Africa/Nairobi']
+];
+var GEO_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+var PART = [8, 2, 7, 5, 6, 4, 3];
+var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var RAD = Math.PI / 180;
+
+var mem = {};
+function load(k) { try { var v = localStorage.getItem(k); if (v !== null) return JSON.parse(v); } catch (e) {} return k in mem ? mem[k] : null; }
+function save(k, v) { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function $(id) { return document.getElementById(id); }
+
+function sunTimes(y, m, d, lat, lon) {
+  var n = Date.UTC(y, m - 1, d) / 86400000 + 2440588 - 2451545;
+  var js = n + 0.0008 - lon / 360;
+  var M = (((357.5291 + 0.98560028 * js) % 360) + 360) % 360;
+  var C = 1.9148 * Math.sin(M * RAD) + 0.02 * Math.sin(2 * M * RAD) + 0.0003 * Math.sin(3 * M * RAD);
+  var lam = (((M + C + 180 + 102.9372) % 360) + 360) % 360;
+  var jt = 2451545 + js + 0.0053 * Math.sin(M * RAD) - 0.0069 * Math.sin(2 * lam * RAD);
+  var sinD = Math.sin(lam * RAD) * Math.sin(23.4397 * RAD);
+  var cosD = Math.cos(Math.asin(sinD));
+  var cosW = (Math.sin(-0.833 * RAD) - Math.sin(lat * RAD) * sinD) / (Math.cos(lat * RAD) * cosD);
+  if (cosW > 1 || cosW < -1) return null;
+  var w = Math.acos(cosW) / RAD;
+  var toMs = function (jd) { return (jd - 2440587.5) * 86400000; };
+  return { rise: toMs(jt - w / 360), set: toMs(jt + w / 360) };
+}
+function minute(ms) { return Math.round(ms / 60000) * 60000; }
+function rahu(y, m, d, lat, lon) {
+  var st = sunTimes(y, m, d, lat, lon);
+  if (!st) return null;
+  var wd = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  var dur = (st.set - st.rise) / 8, p = PART[wd];
+  return { rise: st.rise, set: st.set, wd: wd, part: p, start: minute(st.rise + (p - 1) * dur), end: minute(st.rise + p * dur) };
+}
+function addDays(dt, n) {
+  var t = new Date(Date.UTC(dt.y, dt.m - 1, dt.d + n));
+  return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate() };
+}
+function todayAt(tz) {
+  var s = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-');
+  return { y: +s[0], m: +s[1], d: +s[2] };
+}
+function same(a, b) { return a.y === b.y && a.m === b.m && a.d === b.d; }
+function tfmt(ms, tz) { return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZone: tz }).format(new Date(ms)); }
+function dur(ms) {
+  var mins = Math.max(0, Math.round(ms / 60000)), h = Math.floor(mins / 60), r = mins % 60;
+  return h ? h + 'h ' + r + 'm' : r + 'm';
+}
+function dist(a, b, c, d) {
+  var p = Math.PI / 180, x = Math.sin((c - a) * p / 2), y = Math.sin((d - b) * p / 2);
+  var h = x * x + Math.cos(a * p) * Math.cos(c * p) * y * y;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
+var loc = load('rk_loc');
+var buf = load('rk_buf'); if (buf === null) buf = 10;
+var rnd = load('rk_rnd'); if (rnd === null) rnd = 5;
+var sel = null, scrubF = null, cur = null, scrubEl = null;
+function updateScrub() {
+  var rd = $('read'), wrap = $('barwrap');
+  if (!cur) { rd.className = 'read'; rd.textContent = ''; return; }
+  if (scrubF === null) {
+    if (scrubEl) scrubEl.classList.add('hidden');
+    rd.className = 'read'; rd.innerHTML = '<span class="hint">Drag along the bar to check any time of day.</span>';
+    wrap.setAttribute('aria-valuenow', '0'); wrap.setAttribute('aria-valuetext', 'Drag to check a time');
+    return;
+  }
+  var r = cur.r, sf = cur.sf, tz = cur.tz;
+  var t = r.rise + scrubF * (r.set - r.rise), cls, label;
+  if (t >= r.start && t < r.end) { cls = 'caution'; label = 'Caution, Rahu Kalam'; }
+  else if (t >= sf.s && t < sf.e) { cls = 'caution'; label = 'Caution, buffer time'; }
+  else { cls = 'good'; label = 'Good time'; }
+  if (scrubEl) { scrubEl.classList.remove('hidden'); scrubEl.style.left = (scrubF * 100).toFixed(2) + '%'; }
+  rd.className = 'read ' + cls;
+  rd.innerHTML = '<span class="dot"></span><b></b><span></span><button class="tlink" id="clr" type="button">Clear</button>';
+  rd.querySelector('b').textContent = tfmt(t, tz);
+  rd.querySelector('b + span').textContent = label;
+  $('clr').addEventListener('click', function () { scrubF = null; updateScrub(); });
+  wrap.setAttribute('aria-valuenow', String(Math.round(scrubF * 100)));
+  wrap.setAttribute('aria-valuetext', tfmt(t, tz) + ', ' + label);
+}
+function minOfHour(ms, tz) {
+  var parts = new Intl.DateTimeFormat('en-US', { minute: 'numeric', timeZone: tz }).formatToParts(new Date(ms));
+  for (var i = 0; i < parts.length; i++) if (parts[i].type === 'minute') return parseInt(parts[i].value, 10);
+  return 0;
+}
+function floorTo(ms, u, tz) { return ms - (minOfHour(ms, tz) % u) * 60000; }
+function ceilTo(ms, u, tz) { var r = minOfHour(ms, tz) % u; return r === 0 ? ms : ms + (u - r) * 60000; }
+function safe(r, tz) { return { s: floorTo(r.start - buf * 60000, rnd, tz), e: ceilTo(r.end + buf * 60000, rnd, tz) }; }
+
+function shortName(n) { var p = n.split(', '); return p.length > 2 ? p[0] + ', ' + p[p.length - 1] : n; }
+function setPanel(open) {
+  $('locpanel').classList.toggle('hidden', !open);
+  $('chip').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function setLoc(l, msg) {
+  loc = l; save('rk_loc', l);
+  sel = todayAt(loc.tz); scrubF = null;
+  $('locmsg').className = 'msg'; $('locmsg').textContent = msg || '';
+  render();
+  setPanel(false);
+}
+
+function render() {
+  var res = $('result');
+  if (!loc) {
+    res.classList.add('hidden'); $('week').innerHTML = '<li><span class="dn">Choose a location first.</span></li>';
+    if (!$('locmsg').textContent) $('locmsg').textContent = 'Choose where you are to see today\u2019s Rahu Kalam.';
+    return;
+  }
+  res.classList.remove('hidden');
+  var tz = loc.tz, today = todayAt(tz), isToday = same(sel, today);
+  var r = rahu(sel.y, sel.m, sel.d, loc.lat, loc.lon);
+  $('dname').textContent = isToday ? 'Today' : DAYS[new Date(Date.UTC(sel.y, sel.m - 1, sel.d)).getUTCDay()];
+  $('ddate').textContent = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(sel.y, sel.m - 1, sel.d)));
+  $('chiptxt').textContent = shortName(loc.name);
+  $('today').classList.toggle('hidden', isToday);
+  var bar = $('bar'), nums = $('nums');
+  bar.innerHTML = ''; nums.innerHTML = '';
+  if (!r) {
+    $('range').textContent = 'Not available'; $('exact').textContent = ''; $('wdur').textContent = '-'; $('blk').textContent = '-';
+    $('status').textContent = '';
+    $('extra').textContent = 'There is no sunrise or sunset at this latitude on this date, so Rahu Kalam can\u2019t be worked out.';
+    $('sr').textContent = '-'; $('ss').textContent = '-'; $('dl').textContent = '';
+    cur = null; scrubEl = null; updateScrub();
+    $('week').innerHTML = '';
+    return;
+  }
+  var sf = safe(r, tz);
+  $('wdur').textContent = dur(sf.e - sf.s);
+  $('blk').textContent = dur((r.set - r.rise) / 8);
+  $('range').textContent = tfmt(sf.s, tz) + ' to ' + tfmt(sf.e, tz);
+  $('exact').textContent = (buf || rnd > 1) ? 'Exact ' + tfmt(r.start, tz) + ' to ' + tfmt(r.end, tz) : '';
+  var now = Date.now(), status = '', extra = '';
+  if (isToday) {
+    if (now >= sf.s && now < sf.e) status = 'Happening now. Ends in ' + dur(sf.e - now);
+    else if (now < sf.s) status = 'Starts in ' + dur(sf.s - now);
+    else {
+      status = 'Ended ' + dur(now - sf.e) + ' ago';
+      var nx = addDays(sel, 1), nr = rahu(nx.y, nx.m, nx.d, loc.lat, loc.lon);
+      if (nr) { var ns = safe(nr, tz); extra = 'Tomorrow (' + DAYS[nr.wd] + '): ' + tfmt(ns.s, tz) + ' to ' + tfmt(ns.e, tz); }
+    }
+  }
+  $('status').textContent = status;
+  $('extra').textContent = extra;
+  for (var i = 1; i <= 8; i++) {
+    var s = document.createElement('i'); if (i === r.part) s.className = 'r'; bar.appendChild(s);
+    var n = document.createElement('span'); n.innerHTML = i === r.part ? '<b>' + i + '</b>' : String(i); nums.appendChild(n);
+  }
+  if (isToday && now >= r.rise && now <= r.set) {
+    var mk = document.createElement('div'); mk.className = 'mark';
+    mk.style.left = (100 * (now - r.rise) / (r.set - r.rise)).toFixed(2) + '%';
+    bar.appendChild(mk);
+  }
+  scrubEl = document.createElement('div'); scrubEl.className = 'scrub hidden'; bar.appendChild(scrubEl);
+  cur = { r: r, sf: sf, tz: tz };
+  $('sr').textContent = tfmt(r.rise, tz); $('ss').textContent = tfmt(r.set, tz);
+  var dl = Math.round((r.set - r.rise) / 60000);
+  $('dl').textContent = Math.floor(dl / 60) + 'h ' + (dl % 60) + 'm of daylight';
+  updateScrub();
+
+  var wd0 = new Date(Date.UTC(sel.y, sel.m - 1, sel.d)).getUTCDay();
+  var monOffset = (wd0 + 6) % 7, html = '';
+  for (var k = 0; k < 7; k++) {
+    var dt = addDays(sel, k - monOffset), rr = rahu(dt.y, dt.m, dt.d, loc.lat, loc.lon);
+    var short = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(dt.y, dt.m - 1, dt.d)));
+    var ws = rr ? safe(rr, tz) : null;
+    html += '<li class="' + (same(dt, sel) ? 'sel' : '') + '"><span class="dn">' + short + '</span><span class="tt"><span class="t">' + (rr ? tfmt(ws.s, tz) + ' to ' + tfmt(ws.e, tz) : 'n/a') + '</span>' + (rr && (buf || rnd > 1) ? '<span class="ex">exact ' + tfmt(rr.start, tz) + ' to ' + tfmt(rr.end, tz) + '</span>' : '') + '</span></li>';
+  }
+  $('week').innerHTML = html;
+}
+
+/* ---------- place search ---------- */
+var qEl = $('q'), sugEl = $('sug'), timer = null, seq = 0;
+function norm(s) { return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+function localMatches(q) {
+  var base = norm(q.split(',')[0].trim()), qual = norm((q.split(',')[1] || '').trim());
+  if (!base) return [];
+  var starts = [], has = [];
+  LOCAL.forEach(function (c) {
+    var n = norm(c[0]);
+    if (qual && norm(c[1]).indexOf(qual) !== 0 && n.indexOf(qual) !== 0) return;
+    var item = { name: c[0], sub: c[1], label: c[0] + ', ' + c[1], lat: c[2], lon: c[3], tz: c[4] };
+    if (n.indexOf(base) === 0) starts.push(item); else if (n.indexOf(base) > 0) has.push(item);
+  });
+  return starts.concat(has).slice(0, 5);
+}
+function showList(items, note) {
+  sugEl.textContent = '';
+  items.forEach(function (it) {
+    var li = document.createElement('li'); li.setAttribute('role', 'option');
+    var b = document.createElement('button'); b.type = 'button';
+    var t = document.createElement('b'); t.textContent = it.name;
+    var s = document.createElement('span'); s.textContent = it.sub;
+    b.appendChild(t); b.appendChild(s);
+    b.addEventListener('click', function () {
+      qEl.value = it.label; hideList();
+      setLoc({ name: it.label, lat: it.lat, lon: it.lon, tz: it.tz }, '');
+    });
+    li.appendChild(b); sugEl.appendChild(li);
+  });
+  if (note) { var n = document.createElement('li'); n.className = 'note'; n.textContent = note; sugEl.appendChild(n); }
+  var show = items.length > 0 || !!note;
+  sugEl.classList.toggle('hidden', !show);
+  qEl.setAttribute('aria-expanded', show ? 'true' : 'false');
+}
+function hideList() { sugEl.classList.add('hidden'); qEl.setAttribute('aria-expanded', 'false'); }
+
+function remoteSearch(q, mySeq) {
+  var parts = q.split(',');
+  var name = parts[0].trim() + (parts[1] && parts[1].trim() ? ', ' + parts[1].trim() : '');
+  var url = GEO_URL + '?name=' + encodeURIComponent(name) + '&count=10&language=en&format=json';
+  return fetch(url).then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); }).then(function (data) {
+    if (mySeq !== seq) return;
+    var out = (data.results || []).filter(function (x) { return x.timezone; }).map(function (x) {
+      var region = x.admin1 && x.admin1 !== x.name ? x.admin1 : '';
+      var sub = (region ? region + ', ' : '') + (x.country || '');
+      return { name: x.name, sub: sub, label: x.name + (sub ? ', ' + sub : ''), lat: x.latitude, lon: x.longitude, tz: x.timezone };
+    });
+    showList(out, out.length ? '' : 'No matches. Try a nearby bigger town, or add the country, like Springfield, United States.');
+  }).catch(function () {
+    if (mySeq !== seq) return;
+    showList(localMatches(q), 'Couldn\u2019t reach the city search. Showing common cities only.');
+  });
+}
+qEl.addEventListener('input', function () {
+  var q = qEl.value.trim();
+  clearTimeout(timer); seq++;
+  if (q.length < 2) { hideList(); return; }
+  var mySeq = seq;
+  showList(localMatches(q), q.length >= 3 ? 'Searching all cities...' : '');
+  if (q.length >= 3) timer = setTimeout(function () { remoteSearch(q, mySeq); }, 250);
+});
+qEl.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { var first = sugEl.querySelector('button'); if (first) { e.preventDefault(); first.click(); } }
+  if (e.key === 'Escape') hideList();
+});
+document.addEventListener('click', function (e) { if (!e.target.closest('#sug') && e.target !== qEl) hideList(); });
+
+$('geo').addEventListener('click', function () {
+  var b = this, msg = $('locmsg');
+  if (!navigator.geolocation) { msg.className = 'msg err'; msg.textContent = 'This browser can\u2019t share location. Search for a city instead.'; return; }
+  b.disabled = true; msg.className = 'msg'; msg.textContent = 'Finding your location...';
+  navigator.geolocation.getCurrentPosition(function (p) {
+    b.disabled = false;
+    var lat = p.coords.latitude, lon = p.coords.longitude, best = null, bd = 1e9;
+    LOCAL.forEach(function (c) { var d = dist(lat, lon, c[2], c[3]); if (d < bd) { bd = d; best = c; } });
+    var name = bd < 60 ? 'Near ' + best[0] + ', ' + best[1] : 'Your location (' + lat.toFixed(2) + ', ' + lon.toFixed(2) + ')';
+    qEl.value = '';
+    setLoc({ name: name, lat: lat, lon: lon, tz: Intl.DateTimeFormat().resolvedOptions().timeZone }, '');
+  }, function () {
+    b.disabled = false; msg.className = 'msg err';
+    msg.textContent = 'Couldn\u2019t get your location. Allow location access, or search for a city instead.';
+  }, { timeout: 12000, maximumAge: 600000 });
+});
+
+$('prev').addEventListener('click', function () { sel = addDays(sel, -1); scrubF = null; render(); });
+$('next').addEventListener('click', function () { sel = addDays(sel, 1); scrubF = null; render(); });
+$('today').addEventListener('click', function () { sel = todayAt(loc.tz); scrubF = null; render(); });
+$('buf').value = String(buf); $('rnd').value = String(rnd);
+$('buf').addEventListener('change', function () { buf = parseInt(this.value, 10); save('rk_buf', buf); render(); });
+$('rnd').addEventListener('change', function () { rnd = parseInt(this.value, 10); save('rk_rnd', rnd); render(); });
+
+if (loc) { sel = todayAt(loc.tz); if (!/^Near |^Your location/.test(loc.name)) qEl.value = loc.name; }
+(function () {
+  var wrap = $('barwrap'), dragging = false;
+  function frac(e) { var b = $('bar').getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - b.left) / b.width)); }
+  wrap.addEventListener('pointerdown', function (e) {
+    if (!cur) return;
+    dragging = true; try { wrap.setPointerCapture(e.pointerId); } catch (x) {}
+    scrubF = frac(e); updateScrub();
+  });
+  wrap.addEventListener('pointermove', function (e) { if (dragging && cur) { scrubF = frac(e); updateScrub(); } });
+  ['pointerup', 'pointercancel'].forEach(function (n) { wrap.addEventListener(n, function () { dragging = false; }); });
+  wrap.addEventListener('keydown', function (e) {
+    if (!cur) return;
+    var step = 300000 / (cur.r.set - cur.r.rise), f = scrubF === null ? 0.5 : scrubF;
+    if (e.key === 'ArrowRight') f += step; else if (e.key === 'ArrowLeft') f -= step;
+    else if (e.key === 'Home') f = 0; else if (e.key === 'End') f = 1;
+    else if (e.key === 'Escape') { scrubF = null; updateScrub(); return; } else return;
+    e.preventDefault(); scrubF = Math.min(1, Math.max(0, f)); updateScrub();
+  });
+})();
+$('chip').addEventListener('click', function () { setPanel($('locpanel').classList.contains('hidden')); });
+render();
+setPanel(!loc);
+setInterval(function () { if (loc && same(sel, todayAt(loc.tz))) render(); }, 30000);
+document.addEventListener('visibilitychange', function () { if (!document.hidden && loc) { if (same(sel, addDays(todayAt(loc.tz), -1))) sel = todayAt(loc.tz); render(); } });
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
